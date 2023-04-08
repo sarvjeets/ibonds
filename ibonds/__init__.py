@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import yaml
@@ -72,12 +72,79 @@ class InterestRates:
         return 0.0  # Composite rate can't be below zero.
 
 
-class IBonds:
+class _YearMonth:
+    """Internal class to help with I bond value calculations."""
+    def __init__(self, year, month):
+        self.month = month
+        self.year = year
+
+    def __sub__(self, other):
+        """Returns the number of months in self - other."""
+        return (self.year - other.year) * 12 + (self.month - other.month)
+
+    def __add__(self, months):
+        """Adds months to self."""
+        new_val = _YearMonth(self.year, self.month)
+        new_val.month += months
+        new_val.year += (new_val.month - 1) // 12
+        new_val.month = ((new_val.month - 1) % 12) + 1
+        return new_val
+
+    def date(self):
+        """Converts self to a date object."""
+        return date(self.year, self.month, 1)
+
+
+class IBond:
     """Class representing an I Bond."""
-    def __init__(self, issue_date, denom):
+    def __init__(self, issue_date, denom, interest_rates):
         """
         Args:
             issue_date: Issue date of an I Bond in MM/YYYY format.
             demon: Denomination of the I Bond.
+            interest_rates: An initialized object of type InterestRates.
         """
-        pass
+        self.issue_date = datetime.strptime(issue_date, '%m/%Y').date()
+        assert self.issue_date >= date(1998, 9, 1)
+        self.denom = denom
+        self.interest_rates = interest_rates
+
+    def get_fixed_rate(self):
+        """Returns fixed rate (in %) of this I Bond."""
+        return self.interest_rates.get_fixed_rate(self.issue_date)
+
+    def get_composite_rate(self, d=date.today()):
+        """Returns composite rate (in %) of this I Bond on date d."""
+        return self.interest_rates.get_composite_rate(self.get_fixed_rate(), d)
+
+    def get_value(self, d=date.today()):
+        """Returns value of this I Bond on date d."""
+        assert (d - self.issue_date) >= timedelta(days=1), (
+            f'Cannot compute value on {d} which is before the issue date '
+            f'{self.issue_date}')
+
+        # All bond values are multiple of $25 bond
+        value_25 = 25.0
+        value_on = _YearMonth(self.issue_date.year, self.issue_date.month)
+        months_left = _YearMonth(d.year, d.month) - value_on
+
+        if months_left < 12 * 5:   # 5 year penalty
+            months_left -= 3
+            if months_left < 0:
+                months_left = 0
+
+        # Rate changes every 6 months. Interest accrues monthly and compounds
+        # semiannually.
+        while months_left >= 6:
+            r = self.get_composite_rate(value_on.date())
+            value_25 = round(value_25 * (1 + r / 200.0), 2)
+            value_on = value_on + 6
+            months_left -= 6
+
+        if months_left > 0:
+            # Make the last adjustment.
+            r = self.get_composite_rate(value_on.date())
+            value_25 = round(value_25 * (1 + r / 200.0) ** (months_left / 6.0),
+                             2)
+
+        return value_25 * (self.denom / 25.0)

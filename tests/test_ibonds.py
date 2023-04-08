@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from ibonds import InterestRates
+from ibonds import IBond, InterestRates, _YearMonth
 
 INTEREST_RATE_DATA = """2021-05-01:
 - 0.00
@@ -63,6 +63,54 @@ class IBondsTest(unittest.TestCase):
 
     def test_get_rates(self):
         i = InterestRates(INTEREST_RATE_DATA)
-        self.assertEquals(0.4, i.get_fixed_rate(date(2023, 4, 7)))
-        self.assertEquals(3.24, i.get_inflation_rate(date(2023, 4, 7)))
-        self.assertEquals(6.89, i.get_composite_rate(0.4, date(2023, 4, 7)))
+        self.assertEqual(0.4, i.get_fixed_rate(date(2023, 4, 7)))
+        self.assertEqual(3.24, i.get_inflation_rate(date(2023, 4, 7)))
+        self.assertEqual(6.89, i.get_composite_rate(0.4, date(2023, 4, 7)))
+
+    def test_ibond_init(self):
+        i = InterestRates(INTEREST_RATE_DATA)
+        IBond('05/2021', 10000, i)
+        with self.assertRaises(AssertionError):
+            IBond('01/1990', 25, i)
+
+    def test_get_fixed_rate(self):
+        ib = IBond('04/2023', 25, InterestRates(INTEREST_RATE_DATA))
+        self.assertEqual(0.4, ib.get_fixed_rate())
+
+    def test_get_composite_rate(self):
+        ib = IBond('04/2023', 25, InterestRates(INTEREST_RATE_DATA))
+        self.assertEqual(6.89, ib.get_composite_rate(date(2023, 4, 7)))
+
+    def test_yearmonth(self):
+        self.assertEqual(2, _YearMonth(2023, 5) - _YearMonth(2023, 3))
+        self.assertEqual(1, _YearMonth(2023, 1) - _YearMonth(2022, 12))
+        self.assertEqual(12 * 5, _YearMonth(2023, 1) - _YearMonth(2018, 1))
+        self.assertEqual(-11, _YearMonth(2023, 1) - _YearMonth(2023, 12))
+
+        d = _YearMonth(2022, 1) + 11
+        self.assertEqual(date(2022, 12, 1), d.date())
+
+        d = _YearMonth(2022, 12) + 1
+        self.assertEqual(date(2023, 1, 1), d.date())
+
+        d = _YearMonth(2022, 11) + 6
+        self.assertEqual(date(2023, 5, 1), d.date())
+
+    def test_get_value_with_bad_date(self):
+        with self.assertRaisesRegex(
+            AssertionError, 'Cannot compute value on 2023-03-12 which is '
+                            'before the issue date 2023-04-01'):
+            IBond('04/2023', 25, InterestRates(
+                INTEREST_RATE_DATA)).get_value(date(2023, 3, 12))
+
+    def test_get_value(self):
+        ib = IBond('01/2022', 1000, InterestRates())
+        self.assertEqual(1000, ib.get_value(date(2022, 2, 2)))
+        self.assertEqual(1085.60, ib.get_value(date(2023, 4, 1)))
+
+        ib = IBond('04/2018', 1000, InterestRates())
+        self.assertEqual(1184.80, ib.get_value(date(2023, 4, 1)))
+        self.assertEqual(1223.60, ib.get_value(date(2023, 10, 1)))
+
+        ib = IBond('09/1998', 10000, InterestRates())
+        self.assertEqual(43240, ib.get_value(date(2023, 9, 1)))
