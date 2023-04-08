@@ -60,3 +60,9 @@ class IBondsTest(unittest.TestCase):
         self.assertTrue(i.is_current(within_days=2, today=date(2023, 5, 2)))
         self.assertFalse(i.is_current(within_days=1, today=date(2023, 5, 2)))
         self.assertFalse(i.is_current(within_days=60, today=date(2023, 11, 1)))
+
+    def test_get_rates(self):
+        i = InterestRates(INTEREST_RATE_DATA)
+        self.assertEquals(0.4, i.get_fixed_rate(date(2023, 4, 7)))
+        self.assertEquals(3.24, i.get_inflation_rate(date(2023, 4, 7)))
+        self.assertEquals(6.89, i.get_composite_rate(0.4, date(2023, 4, 7)))

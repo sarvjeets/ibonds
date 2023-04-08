@@ -54,6 +54,23 @@ class InterestRates:
         last_date = today - timedelta(days=within_days)
         return self.get_previous_rate_date(last_date) in self.interest_rates
 
+    def get_fixed_rate(self, d):
+        """Get fixed ratei (in %) as of date d."""
+        return self.interest_rates[self.get_previous_rate_date(d)][0]
+
+    def get_inflation_rate(self, d):
+        """Get inflation rate (in %) as of date d."""
+        return self.interest_rates[self.get_previous_rate_date(d)][1]
+
+    def get_composite_rate(self, fixed_rate, d):
+        """Return the composite rate for i bond with fixed_rate on date d."""
+        f = fixed_rate / 100.0
+        i = self.get_inflation_rate(d) / 100.0
+        r = (f + (2 * i) + (f * i)) * 100.0
+        if r > 0:
+            return round(r, 2)
+        return 0.0  # Composite rate can't be below zero.
+
 
 class IBonds:
     """Class representing an I Bond."""
