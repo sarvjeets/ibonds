@@ -62,23 +62,23 @@ class IBondsTest(unittest.TestCase):
         self.assertFalse(i.is_current(within_days=60, today=date(2023, 11, 1)))
 
     def test_get_rates(self):
-        i = InterestRates(INTEREST_RATE_DATA)
+        i = InterestRates()
         self.assertEqual(0.4, i.get_fixed_rate(date(2023, 4, 7)))
         self.assertEqual(3.24, i.get_inflation_rate(date(2023, 4, 7)))
         self.assertEqual(6.89, i.get_composite_rate(0.4, date(2023, 4, 7)))
 
     def test_ibond_init(self):
-        i = InterestRates(INTEREST_RATE_DATA)
+        i = InterestRates()
         IBond('05/2021', 10000, i)
         with self.assertRaises(AssertionError):
             IBond('01/1990', 25, i)
 
     def test_get_fixed_rate(self):
-        ib = IBond('04/2023', 25, InterestRates(INTEREST_RATE_DATA))
+        ib = IBond('04/2023', 25, InterestRates())
         self.assertEqual(0.4, ib.get_fixed_rate())
 
     def test_get_composite_rate(self):
-        ib = IBond('04/2023', 25, InterestRates(INTEREST_RATE_DATA))
+        ib = IBond('04/2023', 25, InterestRates())
         self.assertEqual(6.89, ib.get_composite_rate(date(2023, 4, 7)))
 
     def test_yearmonth(self):
@@ -100,8 +100,7 @@ class IBondsTest(unittest.TestCase):
         with self.assertRaisesRegex(
             AssertionError, 'Cannot compute value on 2023-03-12 which is '
                             'before the issue date 2023-04-01'):
-            IBond('04/2023', 25, InterestRates(
-                INTEREST_RATE_DATA)).get_value(date(2023, 3, 12))
+            IBond('04/2023', 25, InterestRates()).get_value(date(2023, 3, 12))
 
     def test_get_value(self):
         ib = IBond('01/2022', 1000, InterestRates())
