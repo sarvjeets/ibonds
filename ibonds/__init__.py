@@ -20,7 +20,7 @@ class InterestRates:
             interest_rate_data = f.read_text()
         self.interest_rates = yaml.safe_load(interest_rate_data)
 
-    def get_previous_rate_date(self, d):
+    def previous_rate_date(self, d):
         """Given a date d, returns the previous date when interest rates were
         changed.
 
@@ -39,7 +39,7 @@ class InterestRates:
         # month = 11 or 12
         return date(d.year, 11, 1)
 
-    def get_latest_date(self):
+    def latest_date(self):
         return max(self.interest_rates.keys())
 
     def is_current(self, within_days=1, today=date.today()):
@@ -52,20 +52,20 @@ class InterestRates:
             here for testing.
         """
         last_date = today - timedelta(days=within_days)
-        return self.get_previous_rate_date(last_date) in self.interest_rates
+        return self.previous_rate_date(last_date) in self.interest_rates
 
-    def get_fixed_rate(self, d):
+    def fixed_rate(self, d):
         """Get fixed ratei (in %) as of date d."""
-        return self.interest_rates[self.get_previous_rate_date(d)][0]
+        return self.interest_rates[self.previous_rate_date(d)][0]
 
-    def get_inflation_rate(self, d):
+    def inflation_rate(self, d):
         """Get inflation rate (in %) as of date d."""
-        return self.interest_rates[self.get_previous_rate_date(d)][1]
+        return self.interest_rates[self.previous_rate_date(d)][1]
 
-    def get_composite_rate(self, fixed_rate, d):
+    def composite_rate(self, fixed_rate, d):
         """Return the composite rate for i bond with fixed_rate on date d."""
         f = fixed_rate / 100.0
-        i = self.get_inflation_rate(d) / 100.0
+        i = self.inflation_rate(d) / 100.0
         r = (f + (2 * i) + (f * i)) * 100.0
         if r > 0:
             return round(r, 2)
@@ -109,15 +109,15 @@ class IBond:
         self.denom = denom
         self.interest_rates = interest_rates
 
-    def get_fixed_rate(self):
+    def fixed_rate(self):
         """Returns fixed rate (in %) of this I Bond."""
-        return self.interest_rates.get_fixed_rate(self.issue_date)
+        return self.interest_rates.fixed_rate(self.issue_date)
 
-    def get_composite_rate(self, d=date.today()):
+    def composite_rate(self, d=date.today()):
         """Returns composite rate (in %) of this I Bond on date d."""
-        return self.interest_rates.get_composite_rate(self.get_fixed_rate(), d)
+        return self.interest_rates.composite_rate(self.fixed_rate(), d)
 
-    def get_value(self, d=date.today()):
+    def value(self, d=date.today()):
         """Returns value of this I Bond on date d."""
         assert (d - self.issue_date) >= timedelta(days=1), (
             f'Cannot compute value on {d} which is before the issue date '
@@ -136,14 +136,14 @@ class IBond:
         # Rate changes every 6 months. Interest accrues monthly and compounds
         # semiannually.
         while months_left >= 6:
-            r = self.get_composite_rate(value_on.date())
+            r = self.composite_rate(value_on.date())
             value_25 = round(value_25 * (1 + r / 200.0), 2)
             value_on = value_on + 6
             months_left -= 6
 
         if months_left > 0:
             # Make the last adjustment.
-            r = self.get_composite_rate(value_on.date())
+            r = self.composite_rate(value_on.date())
             value_25 = round(value_25 * (1 + r / 200.0) ** (months_left / 6.0),
                              2)
 

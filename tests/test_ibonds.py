@@ -21,35 +21,35 @@ INTEREST_RATE_DATA = """2021-05-01:
 class IBondsTest(unittest.TestCase):
     def test_something(self):
         interest_rates = InterestRates(INTEREST_RATE_DATA)
-        self.assertEqual(date(2022, 11, 1), interest_rates.get_latest_date())
+        self.assertEqual(date(2022, 11, 1), interest_rates.latest_date())
 
     def test_previous_rate_date(self):
         i = InterestRates()
-        self.assertEqual(i.get_previous_rate_date(date(1998, 10, 1)),
+        self.assertEqual(i.previous_rate_date(date(1998, 10, 1)),
                          date(1998, 9, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 1, 10)),
+        self.assertEqual(i.previous_rate_date(date(2000, 1, 10)),
                          date(1999, 11, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 2, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 2, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 3, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 3, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 4, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 4, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 5, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 5, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 6, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 6, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 7, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 7, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 8, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 8, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 9, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 9, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 10, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 10, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 11, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 11, 1)),
                          date(2000, 11, 1))
-        self.assertEqual(i.get_previous_rate_date(date(2000, 12, 1)),
+        self.assertEqual(i.previous_rate_date(date(2000, 12, 1)),
                          date(2000, 11, 1))
 
     def test_is_current(self):
@@ -61,11 +61,11 @@ class IBondsTest(unittest.TestCase):
         self.assertFalse(i.is_current(within_days=1, today=date(2023, 5, 2)))
         self.assertFalse(i.is_current(within_days=60, today=date(2023, 11, 1)))
 
-    def test_get_rates(self):
+    def test_rates(self):
         i = InterestRates()
-        self.assertEqual(0.4, i.get_fixed_rate(date(2023, 4, 7)))
-        self.assertEqual(3.24, i.get_inflation_rate(date(2023, 4, 7)))
-        self.assertEqual(6.89, i.get_composite_rate(0.4, date(2023, 4, 7)))
+        self.assertEqual(0.4, i.fixed_rate(date(2023, 4, 7)))
+        self.assertEqual(3.24, i.inflation_rate(date(2023, 4, 7)))
+        self.assertEqual(6.89, i.composite_rate(0.4, date(2023, 4, 7)))
 
     def test_ibond_init(self):
         i = InterestRates()
@@ -73,13 +73,13 @@ class IBondsTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             IBond('01/1990', 25, i)
 
-    def test_get_fixed_rate(self):
+    def test_fixed_rate(self):
         ib = IBond('04/2023', 25, InterestRates())
-        self.assertEqual(0.4, ib.get_fixed_rate())
+        self.assertEqual(0.4, ib.fixed_rate())
 
-    def test_get_composite_rate(self):
+    def test_composite_rate(self):
         ib = IBond('04/2023', 25, InterestRates())
-        self.assertEqual(6.89, ib.get_composite_rate(date(2023, 4, 7)))
+        self.assertEqual(6.89, ib.composite_rate(date(2023, 4, 7)))
 
     def test_yearmonth(self):
         self.assertEqual(2, _YearMonth(2023, 5) - _YearMonth(2023, 3))
@@ -96,20 +96,20 @@ class IBondsTest(unittest.TestCase):
         d = _YearMonth(2022, 11) + 6
         self.assertEqual(date(2023, 5, 1), d.date())
 
-    def test_get_value_with_bad_date(self):
+    def test_value_with_bad_date(self):
         with self.assertRaisesRegex(
             AssertionError, 'Cannot compute value on 2023-03-12 which is '
                             'before the issue date 2023-04-01'):
-            IBond('04/2023', 25, InterestRates()).get_value(date(2023, 3, 12))
+            IBond('04/2023', 25, InterestRates()).value(date(2023, 3, 12))
 
-    def test_get_value(self):
+    def test_value(self):
         ib = IBond('01/2022', 1000, InterestRates())
-        self.assertEqual(1000, ib.get_value(date(2022, 2, 2)))
-        self.assertEqual(1085.60, ib.get_value(date(2023, 4, 1)))
+        self.assertEqual(1000, ib.value(date(2022, 2, 2)))
+        self.assertEqual(1085.60, ib.value(date(2023, 4, 1)))
 
         ib = IBond('04/2018', 1000, InterestRates())
-        self.assertEqual(1184.80, ib.get_value(date(2023, 4, 1)))
-        self.assertEqual(1223.60, ib.get_value(date(2023, 10, 1)))
+        self.assertEqual(1184.80, ib.value(date(2023, 4, 1)))
+        self.assertEqual(1223.60, ib.value(date(2023, 10, 1)))
 
         ib = IBond('09/1998', 10000, InterestRates())
-        self.assertEqual(43240, ib.get_value(date(2023, 9, 1)))
+        self.assertEqual(43240, ib.value(date(2023, 9, 1)))
