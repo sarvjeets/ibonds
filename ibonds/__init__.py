@@ -27,6 +27,8 @@ class InterestRates:
         Args:
             d: A datetime.date object.
         """
+        assert d >= date(1998, 9, 1)
+
         if d < date(1998, 11, 1):
             return date(1998, 9, 1)
 
@@ -63,7 +65,7 @@ class InterestRates:
         return self.interest_rates[self.previous_rate_date(d)][1]
 
     def composite_rate(self, fixed_rate, d):
-        """Return the composite rate for i bond with fixed_rate on date d."""
+        """Return the composite rate for I bond with fixed_rate on date d."""
         f = fixed_rate / 100.0
         i = self.inflation_rate(d) / 100.0
         r = (f + (2 * i) + (f * i)) * 100.0
@@ -115,6 +117,7 @@ class IBond:
 
     def composite_rate(self, d=date.today()):
         """Returns composite rate (in %) of this I Bond on date d."""
+        # TODO: This method returns the wrong interest rate. FIX ME.
         return self.interest_rates.composite_rate(self.fixed_rate(), d)
 
     def value(self, d=date.today()):
