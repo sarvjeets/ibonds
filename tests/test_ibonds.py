@@ -67,6 +67,12 @@ class IBondsTest(unittest.TestCase):
         self.assertEqual(3.24, i.inflation_rate(date(2023, 4, 7)))
         self.assertEqual(6.89, i.composite_rate(0.4, date(2023, 4, 7)))
 
+    def test_rates_missing(self):
+        i = InterestRates(INTEREST_RATE_DATA)
+        self.assertIsNone(i.fixed_rate(date(2025, 1, 1)))
+        self.assertIsNone(i.inflation_rate(date(2025, 1, 1)))
+        self.assertIsNone(i.composite_rate(0, date(2025, 1, 1)))
+
     def test_ibond_init(self):
         i = InterestRates()
         IBond('05/2021', 10000, i)
@@ -74,11 +80,11 @@ class IBondsTest(unittest.TestCase):
             IBond('01/1990', 25, i)
 
     def test_fixed_rate(self):
-        ib = IBond('04/2023', 25, InterestRates())
+        ib = IBond('04/2023', 25)
         self.assertEqual(0.4, ib.fixed_rate())
 
     def test_composite_rate(self):
-        ib = IBond('04/2023', 25, InterestRates())
+        ib = IBond('04/2023', 25)
         self.assertEqual(6.89, ib.composite_rate(date(2023, 4, 7)))
 
     def test_yearmonth(self):
@@ -96,6 +102,11 @@ class IBondsTest(unittest.TestCase):
         d = _YearMonth(2022, 11) + 6
         self.assertEqual(date(2023, 5, 1), d.date())
 
+    def test_ibond_composite_rate(self):
+        ib = IBond('01/2021', 100)
+        self.assertEqual(6.48, ib.composite_rate(date(2023, 5, 1)))
+        self.assertIsNone(ib.composite_rate(date(2023, 7, 1)))
+
     def test_value_with_bad_date(self):
         with self.assertRaisesRegex(
             AssertionError, 'Cannot compute value on 2023-03-12 which is '
@@ -103,13 +114,13 @@ class IBondsTest(unittest.TestCase):
             IBond('04/2023', 25, InterestRates()).value(date(2023, 3, 12))
 
     def test_value(self):
-        ib = IBond('01/2022', 1000, InterestRates())
+        ib = IBond('01/2022', 1000)
         self.assertEqual(1000, ib.value(date(2022, 2, 2)))
         self.assertEqual(1085.60, ib.value(date(2023, 4, 1)))
 
-        ib = IBond('04/2018', 1000, InterestRates())
+        ib = IBond('04/2018', 1000)
         self.assertEqual(1184.80, ib.value(date(2023, 4, 1)))
         self.assertEqual(1223.60, ib.value(date(2023, 10, 1)))
 
-        ib = IBond('09/1998', 10000, InterestRates())
+        ib = IBond('09/1998', 10000)
         self.assertEqual(43240, ib.value(date(2023, 9, 1)))

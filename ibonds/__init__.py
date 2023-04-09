@@ -57,17 +57,34 @@ class InterestRates:
         return self.previous_rate_date(last_date) in self.interest_rates
 
     def fixed_rate(self, d):
-        """Get fixed ratei (in %) as of date d."""
-        return self.interest_rates[self.previous_rate_date(d)][0]
+        """Get fixed ratei (in %) as of date d. Returns None if interest
+        rate is not present in interest rates file/date provided to this
+        class.
+        """
+        pre_date = self.previous_rate_date(d)
+        if pre_date not in self.interest_rates:
+            return None
+        return self.interest_rates.get(self.previous_rate_date(d))[0]
 
     def inflation_rate(self, d):
-        """Get inflation rate (in %) as of date d."""
+        """Get inflation rate (in %) as of date d. Returns None if interest
+        rate is not present in interest rates file/date provided to this
+        class.
+        """
+        pre_date = self.previous_rate_date(d)
+        if pre_date not in self.interest_rates:
+            return None
         return self.interest_rates[self.previous_rate_date(d)][1]
 
     def composite_rate(self, fixed_rate, d):
         """Return the composite rate for I bond with fixed_rate on date d."""
+        inflation_rate = self.inflation_rate(d)
+
+        if not inflation_rate:
+            return None
+
         f = fixed_rate / 100.0
-        i = self.inflation_rate(d) / 100.0
+        i = inflation_rate / 100.0
         r = (f + (2 * i) + (f * i)) * 100.0
         if r > 0:
             return round(r, 2)
@@ -99,7 +116,7 @@ class _YearMonth:
 
 class IBond:
     """Class representing an I Bond."""
-    def __init__(self, issue_date, denom, interest_rates):
+    def __init__(self, issue_date, denom, interest_rates=InterestRates()):
         """
         Args:
             issue_date: Issue date of an I Bond in MM/YYYY format.
@@ -113,12 +130,22 @@ class IBond:
 
     def fixed_rate(self):
         """Returns fixed rate (in %) of this I Bond."""
-        return self.interest_rates.fixed_rate(self.issue_date)
+        rate = self.interest_rates.fixed_rate(self.issue_date)
+        assert rate is not None, ('Cannot find fixed rate for I Bond with '
+                                  f'issue date {self.issue_date}')
+        return rate
 
     def composite_rate(self, d=date.today()):
-        """Returns composite rate (in %) of this I Bond on date d."""
-        # TODO: This method returns the wrong interest rate. FIX ME.
-        return self.interest_rates.composite_rate(self.fixed_rate(), d)
+        """Returns composite rate (in %) of this I Bond on date d. Returns None
+        if interest rate is not present in interest rates provided to this
+        class.
+        """
+        current_month = _YearMonth(d.year, d.month)
+        age_months = (current_month - _YearMonth(self.issue_date.year,
+                                                 self.issue_date.month))
+        rate_change_month = current_month + (- (age_months % 6))
+        return self.interest_rates.composite_rate(self.fixed_rate(),
+                                                  rate_change_month.date())
 
     def value(self, d=date.today()):
         """Returns value of this I Bond on date d."""
