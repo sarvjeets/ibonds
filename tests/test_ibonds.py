@@ -24,32 +24,31 @@ class IBondsTest(unittest.TestCase):
         self.assertEqual(date(2022, 11, 1), interest_rates.latest_date())
 
     def test_previous_rate_date(self):
-        i = InterestRates()
-        self.assertEqual(i.previous_rate_date(date(1998, 10, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(1998, 10, 1)),
                          date(1998, 9, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 1, 10)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 1, 10)),
                          date(1999, 11, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 2, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 2, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 3, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 3, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 4, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 4, 1)),
                          date(1999, 11, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 5, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 5, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 6, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 6, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 7, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 7, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 8, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 8, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 9, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 9, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 10, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 10, 1)),
                          date(2000, 5, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 11, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 11, 1)),
                          date(2000, 11, 1))
-        self.assertEqual(i.previous_rate_date(date(2000, 12, 1)),
+        self.assertEqual(InterestRates.previous_rate_date(date(2000, 12, 1)),
                          date(2000, 11, 1))
 
     def test_is_current(self):

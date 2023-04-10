@@ -20,7 +20,8 @@ class InterestRates:
             interest_rate_data = f.read_text()
         self.interest_rates = yaml.safe_load(interest_rate_data)
 
-    def previous_rate_date(self, d):
+    @classmethod
+    def previous_rate_date(cls, d):
         """Given a date d, returns the previous date when interest rates were
         changed.
 
