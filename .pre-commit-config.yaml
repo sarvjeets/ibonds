@@ -32,6 +32,6 @@ repos:
     name: unittest
     entry: python -m unittest discover
     language: python
-    additional_dependencies: [PyYAML]
+    additional_dependencies: [pyyaml, requests]
     types: [python]
     pass_filenames: false

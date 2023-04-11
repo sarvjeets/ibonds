@@ -1,13 +1,23 @@
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import requests
 import yaml
 
 
 class InterestRates:
+    """Class to represent historic interest rates for I Bonds."""
     FILE_PATH = 'interest_rates.yaml'
 
-    """Class to represent historic interest rates for I Bonds."""
+    @classmethod
+    def latest_rates_data(cls):
+        """Download the latest interest rates data from this project'ss github
+        repo."""
+        r = requests.get('https://raw.githubusercontent.com/sarvjeets/'
+                         'ibonds/main/ibonds/interest_rates.yaml')
+        r.raise_for_status()
+        return r.text
+
     def __init__(self, interest_rate_data=None):
         """
             Args:
@@ -38,7 +48,6 @@ class InterestRates:
             return date(d.year - 1, 11, 1)
         if month >= 5 and month <= 10:
             return date(d.year, 5, 1)
-
         # month = 11 or 12
         return date(d.year, 11, 1)
 
