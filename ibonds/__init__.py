@@ -163,10 +163,11 @@ class IBond:
             f'Cannot compute value on {d} which is before the issue date '
             f'{self.issue_date}')
 
-        # All bond values are multiple of $25 bond
+        # All bond values are multiple of $25 bond.
         value_25 = 25.0
         value_on = _YearMonth(self.issue_date.year, self.issue_date.month)
         months_left = _YearMonth(d.year, d.month) - value_on
+        months_left = min(months_left, 12 * 30)  # No interest after 30 yrs.
 
         if months_left < 12 * 5:   # 5 year penalty
             months_left -= 3
