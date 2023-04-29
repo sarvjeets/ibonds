@@ -3,7 +3,11 @@ from datetime import date
 
 from ibonds import IBond, InterestRates, _YearMonth
 
-INTEREST_RATE_DATA = """2021-05-01:
+INTEREST_RATE_DATA = """
+2020-11-01:
+- 0.00
+- 0.84
+2021-05-01:
 - 0.00
 - 1.77
 2021-11-01:
@@ -102,7 +106,8 @@ class IBondsTest(unittest.TestCase):
         self.assertEqual(date(2023, 5, 1), d.date())
 
     def test_ibond_composite_rate(self):
-        ib = IBond('01/2021', 100)
+        i = InterestRates(INTEREST_RATE_DATA)
+        ib = IBond('01/2021', 100, i)
         self.assertEqual(6.48, ib.composite_rate(date(2023, 5, 1)))
         self.assertIsNone(ib.composite_rate(date(2023, 7, 1)))
 
