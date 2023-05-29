@@ -9,7 +9,7 @@ setup(
     author='Sarvjeet Singh',
     author_email='sarvjeet@gmail.com',
     description=('Library to calculate the current value of a '
-                 'Series I savings bond'),
+                 'Series I Savings bond (I Bond)'),
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/sarvjeets/ibonds',
