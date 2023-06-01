@@ -67,7 +67,7 @@ class InterestRates:
         return self.previous_rate_date(last_date) in self.interest_rates
 
     def fixed_rate(self, d):
-        """Get fixed ratei (in %) as of date d. Returns None if interest
+        """Get fixed rate (in %) as of date d. Returns None if interest
         rate is not present in interest rates file/date provided to this
         class.
         """
@@ -139,11 +139,9 @@ class IBond:
         self.interest_rates = interest_rates
 
     def fixed_rate(self):
-        """Returns fixed rate (in %) of this I Bond."""
-        rate = self.interest_rates.fixed_rate(self.issue_date)
-        assert rate is not None, ('Cannot find fixed rate for I Bond with '
-                                  f'issue date {self.issue_date}')
-        return rate
+        """Returns fixed rate (in %) of this I Bond. Returns None if interest
+        rate is not present in the interest rates provided to this class."""
+        return self.interest_rates.fixed_rate(self.issue_date)
 
     def composite_rate(self, d=date.today()):
         """Returns composite rate (in %) of this I Bond on date d. Returns None
