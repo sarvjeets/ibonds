@@ -159,7 +159,7 @@ class IBond:
 
     def value(self, d=date.today()):
         """Returns value of this I Bond on date d."""
-        assert (d - self.issue_date) >= timedelta(days=1), (
+        assert (d - self.issue_date) >= timedelta(days=0), (
             f'Cannot compute value on {d} which is before the issue date '
             f'{self.issue_date}')
 

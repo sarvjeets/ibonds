@@ -119,6 +119,7 @@ class IBondsTest(unittest.TestCase):
 
     def test_value(self):
         ib = IBond('01/2022', 1000)
+        self.assertEqual(1000, ib.value(date(2022, 1, 1)))
         self.assertEqual(1000, ib.value(date(2022, 2, 2)))
         self.assertEqual(1085.60, ib.value(date(2023, 4, 1)))
 
