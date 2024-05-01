@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='ibonds',
-    version='1.0.3',
+    version='1.0.4',
     author='Sarvjeet Singh',
     author_email='sarvjeet@gmail.com',
     description=('Library to calculate the current value of a '
