@@ -18,14 +18,14 @@ pip install ibonds
 ```python
 from ibonds import IBond
 
-ibond = IBond('01/2010', 10_000)
+ibond = IBond('01/2010', 10_000)  # $10,000 I-Bond bought in Jan 2010
 print(f'Fixed Rate: {ibond.fixed_rate()}')
-print(f'Composie Rate: {ibond.composite_rate()}')
-print(f'Value: {ibond.value()}')
+print(f'Current Composie Rate: {ibond.composite_rate()}')
+print(f'Current value: {ibond.value()}')
 
-from datetime import date
+from datetime import date  # For historic rates and values.
 
-d = date(2020, 1, 1)
+d = date(2020, 1, 1)  # Jan 1, 2020
 print(f'Composie Rate on Jan 1, 2020: {ibond.composite_rate(d)}')
 print(f'Value on Jan 1, 2020: {ibond.value(d)}')
 ```
