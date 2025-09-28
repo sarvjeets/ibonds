@@ -14,6 +14,22 @@ To install the library, run:
 pip install ibonds
 ```
 
+## Example code
+```python
+from ibonds import IBond
+
+ibond = IBond('01/2010', 10_000)
+print(f'Fixed Rate: {ibond.fixed_rate()}')
+print(f'Composie Rate: {ibond.composite_rate()}')
+print(f'Value: {ibond.value()}')
+
+from datetime import date
+
+d = date(2020, 1, 1)
+print(f'Composie Rate on Jan 1, 2020: {ibond.composite_rate(d)}')
+print(f'Value on Jan 1, 2020: {ibond.value(d)}')
+```
+
 If you are interested in tracking more than one I Bond, and would prefer
 a command line interface, please check out
 [lakshmi](https://github.com/sarvjeets/lakshmi). If you like a spreadsheet
