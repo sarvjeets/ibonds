@@ -7,12 +7,25 @@ a new rate is released by [Treasury Direct](https://www.treasurydirect.gov/).
 
 ## Installation
 
-This project can be installed via [pip](https://pip.pypa.io/en/stable/).
-To install the library, run:
-
+This project can be installed from [PyPi](https://pypi.org/project/ibonds/).
+To install via pip:
 ```
 pip install ibonds
 ```
+
+Or, via pipx
+```
+pipx install ibonds
+```
+
+Or, on Arch Linux, you can install it from
+[AUR](https://aur.archlinux.org/packages/python-ibonds) via
+[AUR helpers](https://wiki.archlinux.org/title/AUR_helpers)
+or [directly](https://wiki.archlinux.org/title/Arch_User_Repository)
+```
+yay -S python-ibonds
+```
+
 
 ## Example code
 ```python
